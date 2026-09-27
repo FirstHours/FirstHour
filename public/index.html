@@ -1,0 +1,2748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FirstHour — The 60-Minute Survival Platform</title>
+  <meta name="description" content="Personalized disaster survival protocols. Generate your 60-minute plan in 30 seconds.">
+
+  <!-- Preconnect fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Splitting.js CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/splitting/1.0.6/splitting.min.css">
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <!-- Splitting.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/splitting/1.0.6/splitting.min.js"></script>
+
+  <!-- Lenis Smooth Scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.0.33/dist/lenis.min.js"></script>
+
+  <style>
+    /* === RESET + BASE === */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: auto;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--bone);
+      font-family: 'Space Grotesk', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+      will-change: scroll-position;
+    }
+
+    /* === CSS VARIABLES === */
+    :root {
+      --black:        #08080A;
+      --deep:         #0E0D0F;
+      --charcoal:     #1A191E;
+      --bone:         #E8E4DC;
+      --bone-dim:     #9E9A92;
+      --bone-muted:   #4A4844;
+      --accent:       #D94F2B;
+      --accent-warm:  #E8853A;
+      --accent-glow:  rgba(217,79,43,0.15);
+      --gold:         #C5A96A;
+    }
+
+    /* === TYPOGRAPHY === */
+    .serif { font-family: 'DM Serif Display', Georgia, serif; }
+    .serif-italic { font-family: 'DM Serif Display', Georgia, serif; font-style: italic; }
+    .sans { font-family: 'Space Grotesk', sans-serif; }
+    .inter { font-family: 'Inter', sans-serif; }
+
+    .chapter-marker {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 32px;
+      display: block;
+    }
+
+    /* === CURSOR === */
+    @media (pointer: fine) {
+      * { cursor: none !important; }
+
+      #cursor-ring {
+        position: fixed;
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(232,228,220,0.4);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 99999;
+        top: 0; left: 0;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #cursor-dot {
+        position: fixed;
+        width: 6px;
+        height: 6px;
+        background: var(--bone);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 99999;
+        top: 0; left: 0;
+        transform: translate(-50%, -50%);
+        transition: transform 0.2s ease, opacity 0.2s ease;
+      }
+
+      #cursor-label {
+        position: fixed;
+        pointer-events: none;
+        z-index: 99999;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        color: var(--bone);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        white-space: nowrap;
+        top: 0; left: 0;
+        transform: translate(-50%, -50%);
+      }
+
+      #cursor-ring.hovering {
+        width: 60px;
+        height: 60px;
+        border-color: rgba(217,79,43,0.6);
+      }
+
+      #cursor-ring.hovering-cta {
+        width: 70px;
+        height: 70px;
+        border-color: var(--accent);
+      }
+
+      #cursor-ring.hovering-drag {
+        width: 64px;
+        height: 64px;
+        border-color: rgba(232,228,220,0.5);
+      }
+
+      #cursor-ring.hovering-read {
+        width: 80px;
+        height: 80px;
+        border-color: rgba(232,228,220,0.3);
+      }
+
+      #cursor-dot.hide {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+    }
+
+    /* === LOADER === */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    #loader-top, #loader-bottom {
+      position: absolute;
+      left: 0; right: 0;
+      height: 50%;
+      background: var(--black);
+      z-index: 10000;
+    }
+    #loader-top { top: 0; }
+    #loader-bottom { bottom: 0; }
+
+    #loader-brand {
+      position: absolute;
+      top: 40px;
+      left: 8vw;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.25em;
+      color: var(--bone-muted);
+      opacity: 0;
+      text-transform: uppercase;
+    }
+
+    #loader-counter {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(100px, 15vw, 180px);
+      color: var(--bone);
+      line-height: 1;
+      text-align: center;
+      z-index: 1;
+    }
+
+    #loader-bar-track {
+      width: 180px;
+      height: 1px;
+      background: rgba(78,72,68,0.2);
+      margin-top: 24px;
+      z-index: 1;
+    }
+
+    #loader-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--bone);
+    }
+
+    #loader-tagline {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--bone-muted);
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    #loader-final-text {
+      position: absolute;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(60px, 10vw, 140px);
+      color: var(--bone);
+      z-index: 1;
+      opacity: 0;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    /* === GRAIN TEXTURE === */
+    .grain-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.035;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* === NAV === */
+    #main-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 72px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8vw;
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+
+    #main-nav.scrolled {
+      background: rgba(8,8,10,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .nav-logo {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .nav-logo-main {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: 22px;
+      color: var(--bone);
+      line-height: 1;
+    }
+
+    .nav-logo-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      color: var(--bone-muted);
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      list-style: none;
+    }
+
+    .nav-links li a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--bone-muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links li a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--bone);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-links li a:hover {
+      color: var(--bone);
+    }
+
+    .nav-links li a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .nav-badge {
+      border: 1px solid rgba(217,79,43,0.4);
+      background: rgba(217,79,43,0.08);
+      color: var(--accent-warm);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 6px 14px;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      padding: 8px;
+    }
+
+    #hamburger span {
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--bone);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    #hamburger.active span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    #hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    #hamburger.active span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* === MOBILE MENU === */
+    #mobile-menu {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,8,10,0.97);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 40px;
+      transform: translateY(-100%);
+      transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    #mobile-menu.open {
+      transform: translateY(0);
+    }
+
+    #mobile-menu a {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: 36px;
+      color: var(--bone);
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: color 0.3s ease;
+    }
+
+    #mobile-menu.open a {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #mobile-menu a:nth-child(1) { transition-delay: 0.1s; }
+    #mobile-menu a:nth-child(2) { transition-delay: 0.15s; }
+    #mobile-menu a:nth-child(3) { transition-delay: 0.2s; }
+    #mobile-menu a:nth-child(4) { transition-delay: 0.25s; }
+
+    #mobile-menu a:hover { color: var(--accent-warm); }
+
+    #mobile-close {
+      position: absolute;
+      top: 24px;
+      right: 8vw;
+      background: none;
+      border: none;
+      color: var(--bone);
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    /* === HERO === */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      background: var(--black);
+      overflow: hidden;
+    }
+
+    .hero-ambient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 70% at 85% 20%, rgba(217,79,43,0.08) 0%, transparent 65%);
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      padding-left: 8vw;
+      padding-right: 8vw;
+      max-width: 100%;
+    }
+
+    .hero-chapter {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      opacity: 0;
+    }
+
+    .hero-headline {
+      font-size: clamp(56px, 8.5vw, 124px);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--bone);
+      max-width: 75vw;
+      margin-bottom: 40px;
+    }
+
+    .headline-line {
+      display: block;
+      overflow: hidden;
+      line-height: 1.05;
+    }
+
+    .headline-line .word {
+      display: inline-block;
+      overflow: hidden;
+    }
+
+    .headline-line .char {
+      display: inline-block;
+      transform: translateY(110%);
+    }
+
+    .accent-period {
+      color: var(--accent);
+    }
+
+    .hero-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: clamp(15px, 1.8vw, 20px);
+      color: var(--bone-dim);
+      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 48px;
+      opacity: 0;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      opacity: 0;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      padding: 18px 36px;
+      border: none;
+      border-radius: 0;
+      display: inline-block;
+      text-decoration: none;
+      transition: background 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+    }
+
+    .btn-primary:hover {
+      background: #E5613A;
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: none;
+      border: none;
+      color: var(--bone-muted);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 13px;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-secondary::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--bone-dim);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      color: var(--bone);
+    }
+
+    .btn-secondary:hover::after {
+      transform: scaleX(1);
+    }
+
+    .hero-bottom {
+      position: absolute;
+      bottom: 32px;
+      left: 0;
+      right: 0;
+      padding: 0 8vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 1;
+    }
+
+    .hero-bottom-label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--bone-muted);
+      text-transform: uppercase;
+    }
+
+    .bounce-arrow {
+      display: inline-block;
+    }
+
+    .hero-ticker {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      overflow: hidden;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      z-index: 0;
+    }
+
+    .hero-ticker-inner {
+      display: flex;
+      white-space: nowrap;
+      will-change: transform;
+    }
+
+    .hero-ticker span {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(12px, 1.5vw, 16px);
+      color: rgba(232,228,220,0.06);
+      padding-right: 40px;
+    }
+
+    /* === SECTION 2 STATEMENT === */
+    #statement {
+      background: var(--black);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 20vh 8vw;
+    }
+
+    .statement-block {
+      max-width: 900px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .statement-text {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(28px, 4.5vw, 64px);
+      line-height: 1.3;
+      color: var(--bone);
+    }
+
+    .statement-text .word {
+      display: inline-block;
+      color: rgba(232,228,220,0.15);
+      margin-right: 0.25em;
+      transition: color 0.3s ease;
+    }
+
+    .statement-text em {
+      font-style: italic;
+      color: inherit;
+    }
+
+    .statement-attr {
+      margin-top: 48px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--bone-muted);
+      opacity: 0;
+    }
+
+    .statement-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, rgba(0,0,0,0.4) 100%);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+    }
+
+    /* === SECTION 3 HOW IT WORKS === */
+    #how-it-works {
+      background: var(--black);
+      min-height: 100vh;
+      padding: 15vh 8vw;
+      position: relative;
+    }
+
+    .hiw-header {
+      margin-bottom: 96px;
+    }
+
+    .hiw-heading-line {
+      display: block;
+      overflow: hidden;
+    }
+
+    .hiw-heading-text {
+      display: block;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(48px, 7vw, 96px);
+      color: var(--bone);
+      line-height: 1.0;
+      clip-path: inset(0 100% 0 0);
+    }
+
+    .hiw-heading-text.italic {
+      font-style: italic;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8%;
+      padding: 64px 0;
+      border-top: 1px solid var(--charcoal);
+      transition: all 0.4s ease;
+    }
+
+    .step-item:last-child {
+      border-bottom: 1px solid var(--charcoal);
+    }
+
+    .step-left {
+      width: 40%;
+      flex-shrink: 0;
+    }
+
+    .step-ghost-num {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(80px, 10vw, 140px);
+      color: rgba(232,228,220,0.06);
+      line-height: 1;
+      display: block;
+      transition: color 0.4s ease;
+    }
+
+    .step-item:hover .step-ghost-num {
+      color: rgba(232,228,220,0.15);
+    }
+
+    .step-time {
+      display: block;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .step-right {
+      flex: 1;
+      padding-top: 16px;
+    }
+
+    .step-name {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(28px, 3.5vw, 48px);
+      color: var(--bone);
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .step-body {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 15px;
+      color: var(--bone-dim);
+      line-height: 1.8;
+      max-width: 480px;
+      margin-bottom: 16px;
+    }
+
+    .step-accent {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    /* === SECTION 4 HORIZONTAL SCROLL === */
+    #disasters {
+      position: relative;
+      background: var(--black);
+    }
+
+    #disasters-header {
+      padding: 15vh 8vw 5vh;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .disasters-title-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .disasters-explore {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--bone-muted);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-end;
+    }
+
+    .disasters-explore-arrow {
+      display: inline-block;
+    }
+
+    #disasters-pin {
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #disaster-strip {
+      display: flex;
+      height: 100%;
+      will-change: transform;
+    }
+
+    .disaster-card {
+      width: 100vw;
+      height: 100vh;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 8vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-number {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+    }
+
+    .card-window {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: var(--bone-muted);
+      text-transform: uppercase;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-center {
+      text-align: center;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+    }
+
+    .card-name {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(80px, 14vw, 200px);
+      color: var(--bone);
+      line-height: 0.9;
+      opacity: 0;
+      display: block;
+    }
+
+    .card-pills {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 32px;
+      opacity: 0;
+    }
+
+    .card-pill {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: var(--bone-dim);
+    }
+
+    .card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .card-view-link {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .card-icon {
+      font-size: 32px;
+      opacity: 0.4;
+    }
+
+    /* disaster card backgrounds */
+    .disaster-card[data-type="earthquake"] {
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(180,130,40,0.08) 0%, var(--black) 70%);
+    }
+    .disaster-card[data-type="flood"] {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(40,80,180,0.08) 0%, var(--black) 70%);
+    }
+    .disaster-card[data-type="wildfire"] {
+      background: radial-gradient(ellipse 60% 80% at 100% 50%, rgba(217,79,43,0.12) 0%, var(--black) 70%);
+    }
+    .disaster-card[data-type="hurricane"] {
+      background: radial-gradient(ellipse 80% 60% at 0% 0%, rgba(100,60,180,0.08) 0%, var(--black) 70%);
+    }
+    .disaster-card[data-type="tsunami"] {
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(30,100,180,0.10) 0%, var(--black) 70%);
+    }
+    .disaster-card[data-type="power-outage"] {
+      background: var(--black);
+    }
+
+    /* Mobile disaster cards */
+    #disasters-vertical {
+      display: none;
+      flex-direction: column;
+      padding: 5vh 5vw;
+      gap: 24px;
+    }
+
+    .disaster-card-mobile {
+      width: 100%;
+      height: 80vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 32px 24px;
+      position: relative;
+    }
+
+    /* === SECTION 5 STATS === */
+    #stats {
+      min-height: 60vh;
+      background: var(--charcoal);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10vh 8vw;
+    }
+
+    .stats-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .stat-block {
+      flex: 1;
+      text-align: center;
+      padding: 24px;
+      opacity: 0;
+    }
+
+    .stat-number {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(56px, 8vw, 96px);
+      color: var(--bone);
+      line-height: 1;
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .stat-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      color: var(--bone-dim);
+      line-height: 1.5;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 80px;
+      background: rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    /* === SECTION 6 TESTIMONIALS === */
+    #testimonials {
+      min-height: 100vh;
+      background: var(--black);
+      padding: 15vh 8vw;
+    }
+
+    .testimonials-header {
+      margin-bottom: 80px;
+    }
+
+    .testimonials-heading-line {
+      display: block;
+      overflow: hidden;
+    }
+
+    .testimonials-heading-text {
+      display: block;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(40px, 6vw, 80px);
+      line-height: 1.0;
+      color: var(--bone);
+    }
+
+    .testimonials-heading-text.accent {
+      color: var(--accent);
+      font-style: italic;
+    }
+
+    .testimonial-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .testimonial-card {
+      background: var(--charcoal);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 0;
+      padding: 48px 56px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 48px;
+      position: relative;
+      opacity: 0;
+    }
+
+    .testimonial-card:not(:last-child) {
+      border-bottom: none;
+    }
+
+    .quote-mark {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: 80px;
+      color: var(--accent);
+      opacity: 0.4;
+      position: absolute;
+      top: 24px;
+      left: 56px;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .quote-text {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(20px, 2.5vw, 28px);
+      color: var(--bone);
+      line-height: 1.5;
+      max-width: 560px;
+      padding-top: 48px;
+    }
+
+    .quote-attr {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 13px;
+      color: var(--bone-muted);
+      margin-top: 24px;
+    }
+
+    .testimonial-right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .disaster-badge {
+      display: inline-block;
+      border: 1px solid var(--accent-warm);
+      background: transparent;
+      color: var(--accent-warm);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      align-self: flex-start;
+    }
+
+    .time-saved {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 12px;
+      color: var(--bone-muted);
+      font-style: italic;
+    }
+
+    /* === SECTION 7 FINAL CTA === */
+    #final-cta {
+      height: 100vh;
+      background: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 0 8vw;
+    }
+
+    .cta-ambient {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(217,79,43,0.10) 0%, transparent 65%);
+      z-index: 0;
+    }
+
+    .cta-final-label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 48px;
+      opacity: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-headline {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 40px;
+    }
+
+    .cta-line {
+      display: block;
+      overflow: hidden;
+    }
+
+    .cta-line-text {
+      display: block;
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(56px, 9vw, 128px);
+      line-height: 1.0;
+      color: var(--bone);
+      clip-path: inset(0 0 100% 0);
+    }
+
+    .cta-line-text.italic-line {
+      font-style: italic;
+    }
+
+    .cta-sixty {
+      color: var(--accent);
+    }
+
+    .cta-sub {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 17px;
+      color: var(--bone-dim);
+      line-height: 1.7;
+      max-width: 500px;
+      margin: 0 auto 48px;
+      opacity: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-magnetic-wrap {
+      position: relative;
+      display: inline-block;
+      z-index: 1;
+    }
+
+    .btn-cta-final {
+      padding: 24px 64px;
+      background: var(--accent);
+      color: white;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: 0.05em;
+      border: none;
+      border-radius: 0;
+      display: inline-block;
+      text-decoration: none;
+      transition: background 0.6s ease, transform 0.3s ease;
+      position: relative;
+    }
+
+    .btn-cta-final:hover {
+      background: var(--accent-warm);
+      transform: scale(1.04) translateY(-3px);
+    }
+
+    .back-top {
+      display: block;
+      margin-top: 32px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 13px;
+      color: var(--bone-muted);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .back-top:hover {
+      color: var(--bone);
+    }
+
+    .cta-ticker {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      overflow: hidden;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      z-index: 0;
+    }
+
+    /* === FOOTER === */
+    footer {
+      background: var(--charcoal);
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding: 60px 8vw 40px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand-name {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: 32px;
+      color: var(--bone);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .footer-tagline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      color: var(--bone-muted);
+      line-height: 1.6;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      list-style: none;
+    }
+
+    .footer-links a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 13px;
+      color: var(--bone-muted);
+      text-decoration: none;
+      position: relative;
+      transition: color 0.3s ease;
+      display: inline-block;
+    }
+
+    .footer-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--bone);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--bone);
+    }
+
+    .footer-links a:hover::after {
+      transform: scaleX(1);
+    }
+
+    .footer-right {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-end;
+    }
+
+    .footer-beta-badge {
+      display: inline-block;
+      border: 1px solid rgba(217,79,43,0.4);
+      background: rgba(217,79,43,0.08);
+      color: var(--accent-warm);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      padding: 6px 14px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .footer-early {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 12px;
+      color: var(--bone-muted);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-social a {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: var(--bone-muted);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-social a:hover {
+      color: var(--bone);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.04);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      color: var(--bone-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .footer-legal {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-legal a {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      font-size: 11px;
+      color: var(--bone-muted);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-legal a:hover {
+      color: var(--bone);
+    }
+
+    /* === MOBILE === */
+    @media (max-width: 768px) {
+      #main-nav {
+        padding: 0 5vw;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav-badge {
+        display: none;
+      }
+
+      #hamburger {
+        display: flex;
+      }
+
+      #how-it-works,
+      #testimonials,
+      #stats,
+      #final-cta {
+        padding-left: 5vw;
+        padding-right: 5vw;
+      }
+
+      .hero-content {
+        padding-left: 5vw;
+        padding-right: 5vw;
+      }
+
+      .hero-headline {
+        max-width: 100%;
+      }
+
+      .hero-cta-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+      }
+
+      #disasters-pin {
+        display: none;
+      }
+
+      #disasters-vertical {
+        display: flex;
+      }
+
+      .stat-divider {
+        display: none;
+      }
+
+      .stats-inner {
+        flex-direction: column;
+        gap: 40px;
+      }
+
+      .testimonial-card {
+        grid-template-columns: 1fr;
+        padding: 32px 24px;
+      }
+
+      .quote-mark {
+        left: 24px;
+      }
+
+      .testimonial-right {
+        display: none;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-right {
+        align-items: flex-start;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+
+      .step-item {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .step-left {
+        width: 100%;
+      }
+
+      .hiw-header { margin-bottom: 48px; }
+
+      #disasters-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 10vh 5vw 3vh;
+      }
+
+      .testimonials-header {
+        margin-bottom: 40px;
+      }
+
+      #final-cta { padding: 0 5vw; }
+
+      .cta-sub { font-size: 15px; }
+
+      .btn-cta-final { padding: 18px 40px; font-size: 14px; }
+    }
+
+    /* Splitting.js word helper */
+    .word { display: inline-block; }
+
+    /* will-change helpers */
+    .will-animate {
+      will-change: transform, opacity;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CURSOR ELEMENTS -->
+  <div id="cursor-ring"></div>
+  <div id="cursor-dot"></div>
+  <div id="cursor-label"></div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div id="loader-top"></div>
+    <div id="loader-bottom"></div>
+    <div id="loader-brand">FirstHour</div>
+    <div id="loader-counter">00</div>
+    <div id="loader-bar-track"><div id="loader-bar-fill"></div></div>
+    <div id="loader-tagline">(Emergency Preparedness Platform)</div>
+    <div id="loader-final-text">FirstHour</div>
+  </div>
+
+  <!-- NAV -->
+  <nav id="main-nav">
+    <div class="nav-logo">
+      <span class="nav-logo-main">F·H</span>
+      <span class="nav-logo-sub">FirstHour</span>
+    </div>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#statement">Mission</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#disasters">Protocols</a></li>
+      <li><a href="#final-cta">Prepare Now</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <span class="nav-badge">(β) Early Access</span>
+      <button id="hamburger" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu">
+    <button id="mobile-close" aria-label="Close">✕</button>
+    <a href="#statement" class="mobile-nav-link">Mission</a>
+    <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
+    <a href="#disasters" class="mobile-nav-link">Protocols</a>
+    <a href="#final-cta" class="mobile-nav-link">Prepare Now</a>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-ambient"></div>
+      <div class="grain-overlay"></div>
+
+      <div class="hero-content">
+        <p class="hero-chapter">(01 — The Critical Window)</p>
+
+        <h1 class="hero-headline" id="hero-headline">
+          <span class="headline-line"><span class="serif">The first</span></span>
+          <span class="headline-line"><span class="serif-italic">60 minutes</span></span>
+          <span class="headline-line"><span class="serif">save lives<span class="accent-period">.</span></span></span>
+        </h1>
+
+        <p class="hero-sub" id="hero-sub">
+          Most disaster deaths occur in the first hour — not from the disaster itself, but from panic and wrong decisions.
+        </p>
+
+        <div class="hero-cta-row" id="hero-cta">
+          <a href="#final-cta" class="btn-primary magnetic-btn" id="hero-cta-btn">Generate My Protocol →</a>
+          <a href="#how-it-works" class="btn-secondary">↓ Explore the platform</a>
+        </div>
+      </div>
+
+      <div class="hero-bottom">
+        <p class="hero-bottom-label">
+          Scroll to Explore <span class="bounce-arrow" id="bounce-arrow">↓</span>
+        </p>
+        <p class="hero-bottom-label">
+          Preparing <span id="family-count">0</span> Families Globally
+        </p>
+      </div>
+
+      <div class="hero-ticker">
+        <div class="hero-ticker-inner" id="ticker-inner">
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: STATEMENT -->
+    <section id="statement">
+      <div class="statement-vignette" id="statement-vignette"></div>
+      <div class="statement-block">
+        <p class="statement-text" id="statement-text">
+          87% of survivors report that <em>having a plan</em> was the single factor that determined their outcome.
+        </p>
+        <p class="statement-attr" id="statement-attr">
+          — International Disaster Response Study, 2023
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION 3: HOW IT WORKS -->
+    <section id="how-it-works">
+      <div class="hiw-header">
+        <span class="chapter-marker">(CH. I — The Protocol)</span>
+        <div>
+          <div class="hiw-heading-line">
+            <span class="hiw-heading-text" id="hiw-line1">Three steps.</span>
+          </div>
+          <div class="hiw-heading-line">
+            <span class="hiw-heading-text italic" id="hiw-line2">Sixty minutes.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-list">
+        <!-- Step 1 -->
+        <div class="step-item will-animate" id="step-1">
+          <div class="step-left">
+            <span class="step-ghost-num">01</span>
+            <span class="step-time">[00:00 — 05:00]</span>
+          </div>
+          <div class="step-right">
+            <h3 class="step-name">Tell us your situation.</h3>
+            <p class="step-body">Select disaster type, your environment, and who's with you. Thirty seconds. One screen.</p>
+            <span class="step-accent">→ 8 disaster types. Every environment.</span>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-item will-animate" id="step-2">
+          <div class="step-left">
+            <span class="step-ghost-num">02</span>
+            <span class="step-time">[05:00 — 15:00]</span>
+          </div>
+          <div class="step-right">
+            <h3 class="step-name">Receive your protocol.</h3>
+            <p class="step-body">A timed, minute-by-minute survival sequence personalized to your household. No generic advice.</p>
+            <span class="step-accent">→ Critical phase. Urgent phase. Stabilize phase.</span>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-item will-animate" id="step-3">
+          <div class="step-left">
+            <span class="step-ghost-num">03</span>
+            <span class="step-time">[15:00 — 60:00]</span>
+          </div>
+          <div class="step-right">
+            <h3 class="step-name">Share it. Save it.</h3>
+            <p class="step-body">QR code. Wallet card. Offline copy. Your plan is ready before disaster is.</p>
+            <span class="step-accent">→ Works with zero signal.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: HORIZONTAL SCROLL (DISASTERS) -->
+    <section id="disasters">
+      <div id="disasters-header">
+        <div class="disasters-title-block">
+          <span class="chapter-marker">(CH. II — The Threats)</span>
+          <div class="hiw-heading-line">
+            <span class="hiw-heading-text" id="disasters-line1">6 disasters.</span>
+          </div>
+          <div class="hiw-heading-line">
+            <span class="hiw-heading-text italic" id="disasters-line2">One platform.</span>
+          </div>
+        </div>
+        <p class="disasters-explore">
+          Scroll to Explore <span class="disasters-explore-arrow" id="explore-arrow">→</span>
+        </p>
+      </div>
+
+      <!-- Desktop horizontal scroll -->
+      <div id="disasters-pin">
+        <div id="disaster-strip">
+
+          <div class="disaster-card" data-type="earthquake">
+            <div class="card-top">
+              <span class="card-number">(01)</span>
+              <span class="card-window">Critical: 0–72 Hour Window</span>
+            </div>
+            <div class="card-center">
+              <span class="card-name">Earthquake</span>
+              <div class="card-pills">
+                <span class="card-pill">Drop, Cover, Hold On</span>
+                <span class="card-pill">Check for gas leaks</span>
+                <span class="card-pill">Expect aftershocks</span>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+              <span class="card-icon">🌋</span>
+            </div>
+          </div>
+
+          <div class="disaster-card" data-type="flood">
+            <div class="card-top">
+              <span class="card-number">(02)</span>
+              <span class="card-window">Critical: 0–30 Min Window</span>
+            </div>
+            <div class="card-center">
+              <span class="card-name">Flood</span>
+              <div class="card-pills">
+                <span class="card-pill">Seek higher ground</span>
+                <span class="card-pill">Avoid floodwater</span>
+                <span class="card-pill">Cut power at breaker</span>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+              <span class="card-icon">🌊</span>
+            </div>
+          </div>
+
+          <div class="disaster-card" data-type="wildfire">
+            <div class="card-top">
+              <span class="card-number">(03)</span>
+              <span class="card-window">Critical: 0–90 Sec Window</span>
+            </div>
+            <div class="card-center">
+              <span class="card-name">Wildfire</span>
+              <div class="card-pills">
+                <span class="card-pill">Evacuate immediately</span>
+                <span class="card-pill">Seal doors & vents</span>
+                <span class="card-pill">Pre-position vehicle</span>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+              <span class="card-icon">🔥</span>
+            </div>
+          </div>
+
+          <div class="disaster-card" data-type="hurricane">
+            <div class="card-top">
+              <span class="card-number">(04)</span>
+              <span class="card-window">Critical: 48 Hr Prep Window</span>
+            </div>
+            <div class="card-center">
+              <span class="card-name">Hurricane</span>
+              <div class="card-pills">
+                <span class="card-pill">Interior shelter</span>
+                <span class="card-pill">72-hour supply kit</span>
+                <span class="card-pill">Evacuation route</span>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+              <span class="card-icon">🌀</span>
+            </div>
+          </div>
+
+          <div class="disaster-card" data-type="tsunami">
+            <div class="card-top">
+              <span class="card-number">(05)</span>
+              <span class="card-window">Critical: 0–20 Min Window</span>
+            </div>
+            <div class="card-center">
+              <span class="card-name">Tsunami</span>
+              <div class="card-pills">
+                <span class="card-pill">Move inland fast</span>
+                <span class="card-pill">Gain elevation</span>
+                <span class="card-pill">Do not return early</span>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+              <span class="card-icon">🌊</span>
+            </div>
+          </div>
+
+          <div class="disaster-card" data-type="power-outage">
+            <div class="card-top">
+              <span class="card-number">(06)</span>
+              <span class="card-window">Sustained: 72+ Hour Impact</span>
+            </div>
+            <div class="card-center">
+              <span class="card-name">Power Outage</span>
+              <div class="card-pills">
+                <span class="card-pill">Generator safety</span>
+                <span class="card-pill">Food preservation</span>
+                <span class="card-pill">Medical equipment</span>
+              </div>
+            </div>
+            <div class="card-bottom">
+              <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+              <span class="card-icon">⚡</span>
+            </div>
+          </div>
+
+        </div><!-- end disaster-strip -->
+      </div><!-- end disasters-pin -->
+
+      <!-- Mobile vertical fallback -->
+      <div id="disasters-vertical">
+        <div class="disaster-card-mobile" data-type="earthquake" style="background:radial-gradient(ellipse 80% 60% at 50% 100%, rgba(180,130,40,0.08) 0%, var(--black) 70%)">
+          <div style="display:flex;justify-content:space-between"><span class="card-number">(01)</span><span class="card-icon">🌋</span></div>
+          <div><span style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(48px,12vw,80px);color:var(--bone);display:block">Earthquake</span></div>
+          <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+        </div>
+        <div class="disaster-card-mobile" data-type="flood" style="background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(40,80,180,0.08) 0%, var(--black) 70%)">
+          <div style="display:flex;justify-content:space-between"><span class="card-number">(02)</span><span class="card-icon">🌊</span></div>
+          <div><span style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(48px,12vw,80px);color:var(--bone);display:block">Flood</span></div>
+          <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+        </div>
+        <div class="disaster-card-mobile" data-type="wildfire" style="background:radial-gradient(ellipse 60% 80% at 100% 50%, rgba(217,79,43,0.12) 0%, var(--black) 70%)">
+          <div style="display:flex;justify-content:space-between"><span class="card-number">(03)</span><span class="card-icon">🔥</span></div>
+          <div><span style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(48px,12vw,80px);color:var(--bone);display:block">Wildfire</span></div>
+          <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+        </div>
+        <div class="disaster-card-mobile" data-type="hurricane" style="background:radial-gradient(ellipse 80% 60% at 0% 0%, rgba(100,60,180,0.08) 0%, var(--black) 70%)">
+          <div style="display:flex;justify-content:space-between"><span class="card-number">(04)</span><span class="card-icon">🌀</span></div>
+          <div><span style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(48px,12vw,80px);color:var(--bone);display:block">Hurricane</span></div>
+          <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+        </div>
+        <div class="disaster-card-mobile" data-type="tsunami" style="background:radial-gradient(ellipse 80% 60% at 50% 100%, rgba(30,100,180,0.10) 0%, var(--black) 70%)">
+          <div style="display:flex;justify-content:space-between"><span class="card-number">(05)</span><span class="card-icon">🌊</span></div>
+          <div><span style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(48px,12vw,80px);color:var(--bone);display:block">Tsunami</span></div>
+          <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+        </div>
+        <div class="disaster-card-mobile" data-type="power-outage" style="background:var(--black)">
+          <div style="display:flex;justify-content:space-between"><span class="card-number">(06)</span><span class="card-icon">⚡</span></div>
+          <div><span style="font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(36px,10vw,64px);color:var(--bone);display:block">Power Outage</span></div>
+          <a href="#final-cta" class="card-view-link">→ View Protocol</a>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- SECTION 5: STATS -->
+    <section id="stats">
+      <div class="stats-inner">
+        <div class="stat-block" id="stat-1">
+          <span class="stat-number" data-target="87" data-suffix="%" id="count-1">0%</span>
+          <span class="stat-label">of survivors had a prepared plan</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-block" id="stat-2">
+          <span class="stat-number" data-target="5" data-suffix=" min" id="count-2">0 min</span>
+          <span class="stat-label">average time to generate your protocol</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-block" id="stat-3">
+          <span class="stat-number" data-target="12400" data-suffix="+" id="count-3">0+</span>
+          <span class="stat-label">families prepared this week</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: TESTIMONIALS -->
+    <section id="testimonials">
+      <div class="testimonials-header">
+        <span class="chapter-marker">(CH. III — Voices From The Field)</span>
+        <div>
+          <div class="testimonials-heading-line">
+            <span class="testimonials-heading-text" id="test-line1">Real protocols.</span>
+          </div>
+          <div class="testimonials-heading-line">
+            <span class="testimonials-heading-text accent" id="test-line2">Real survival.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-stack">
+
+        <div class="testimonial-card" id="tcard-1">
+          <div class="quote-mark">"</div>
+          <div>
+            <p class="quote-text">I'd been through floods before. I had never been THIS prepared. My children knew exactly what to do. Every second mattered.</p>
+            <p class="quote-attr">— Sarah K., Houston TX — Survived 2024 Hurricane</p>
+          </div>
+          <div class="testimonial-right">
+            <span class="disaster-badge">Hurricane</span>
+            <span class="time-saved">Protocol generated in 28 seconds</span>
+          </div>
+        </div>
+
+        <div class="testimonial-card" id="tcard-2">
+          <div class="quote-mark">"</div>
+          <div>
+            <p class="quote-text">The protocol was printed and on our fridge. When it hit at 3am, nobody panicked. We just followed the plan.</p>
+            <p class="quote-attr">— Marcus T., San José CA — 6.4 Earthquake</p>
+          </div>
+          <div class="testimonial-right">
+            <span class="disaster-badge">Earthquake</span>
+            <span class="time-saved">Protocol generated in 41 seconds</span>
+          </div>
+        </div>
+
+        <div class="testimonial-card" id="tcard-3">
+          <div class="quote-mark">"</div>
+          <div>
+            <p class="quote-text">Ninety seconds. That's how long we had to get out. FirstHour had already told us this scenario. We were ready.</p>
+            <p class="quote-attr">— Priya N., Maui HI — Wildfire Evacuation</p>
+          </div>
+          <div class="testimonial-right">
+            <span class="disaster-badge">Wildfire</span>
+            <span class="time-saved">Protocol generated in 33 seconds</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 7: FINAL CTA -->
+    <section id="final-cta">
+      <div class="cta-ambient"></div>
+      <div class="grain-overlay"></div>
+
+      <p class="cta-final-label" id="cta-label">(Final Act)</p>
+
+      <div class="cta-headline">
+        <div class="cta-line">
+          <span class="cta-line-text" id="cta-line1">Your plan.</span>
+        </div>
+        <div class="cta-line">
+          <span class="cta-line-text italic-line" id="cta-line2">Your family.</span>
+        </div>
+        <div class="cta-line">
+          <span class="cta-line-text" id="cta-line3"><span class="cta-sixty">60</span> minutes.</span>
+        </div>
+      </div>
+
+      <p class="cta-sub" id="cta-sub">
+        Generate your personalized 60-minute survival protocol.<br>No account. No credit card. 30 seconds.
+      </p>
+
+      <div class="cta-magnetic-wrap">
+        <a href="/auth" class="btn-cta-final magnetic-btn" id="final-cta-btn">Generate My Survival Plan →</a>
+      </div>
+
+      <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" class="back-top">↑ Back to top</a>
+
+      <div class="cta-ticker">
+        <div class="hero-ticker-inner" id="cta-ticker-inner">
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span>EARTHQUAKE · FLOOD · WILDFIRE · HURRICANE · TSUNAMI · TORNADO · CHEMICAL · POWER OUTAGE · &nbsp;&nbsp;&nbsp;&nbsp;</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <span class="footer-brand-name">F·H</span>
+        <p class="footer-tagline">When seconds count, preparation is everything.</p>
+      </div>
+      <div>
+        <ul class="footer-links">
+          <li><a href="#statement">Mission</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#disasters">Protocols</a></li>
+          <li><a href="#final-cta">Prepare Now</a></li>
+        </ul>
+      </div>
+      <div class="footer-right">
+        <span class="footer-beta-badge">(Beta)</span>
+        <span class="footer-early">Early access · 2025</span>
+        <div class="footer-social">
+          <a href="#">IG</a>
+          <a href="#">TW</a>
+          <a href="#">LN</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 FirstHour — Emergency Preparedness Platform</span>
+      <div class="footer-legal">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  // ================================================================
+  // GUARD: Ensure libraries are loaded before init
+  // ================================================================
+  (function() {
+    'use strict';
+
+    // ================================================================
+    // 1. SPLITTING.JS INIT — wrap chars for animation
+    // ================================================================
+    // We'll do manual char splitting for the headline since we need
+    // per-line clip-path overflow:hidden
+    function splitCharsInLine(lineEl) {
+      const text = lineEl.textContent;
+      lineEl.textContent = '';
+      for (let i = 0; i < text.length; i++) {
+        const span = document.createElement('span');
+        span.className = 'char';
+        span.style.display = 'inline-block';
+        span.style.transform = 'translateY(110%)';
+        span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+        lineEl.appendChild(span);
+      }
+      return lineEl.querySelectorAll('.char');
+    }
+
+    // Split hero headline into chars within overflow:hidden wrappers
+    const headlineLines = document.querySelectorAll('.headline-line > *');
+    let allHeroChars = [];
+    headlineLines.forEach(line => {
+      // Preserve accent period
+      const originalHTML = line.innerHTML;
+      const hasAccent = line.querySelector('.accent-period');
+
+      if (hasAccent) {
+        // Split "save lives" and "." separately
+        const text = 'save lives';
+        line.innerHTML = '';
+        for (let i = 0; i < text.length; i++) {
+          const span = document.createElement('span');
+          span.className = 'char';
+          span.style.display = 'inline-block';
+          span.style.transform = 'translateY(110%)';
+          span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+          line.appendChild(span);
+        }
+        const period = document.createElement('span');
+        period.className = 'char accent-period';
+        period.style.display = 'inline-block';
+        period.style.transform = 'translateY(110%)';
+        period.textContent = '.';
+        line.appendChild(period);
+        allHeroChars.push(...line.querySelectorAll('.char'));
+      } else {
+        const chars = splitCharsInLine(line);
+        allHeroChars.push(...chars);
+      }
+    });
+
+    // ================================================================
+    // 2. LOADER SEQUENCE
+    // ================================================================
+    document.body.style.overflow = 'hidden';
+
+    const loaderEl = document.getElementById('loader');
+    const loaderTop = document.getElementById('loader-top');
+    const loaderBottom = document.getElementById('loader-bottom');
+    const loaderCounter = document.getElementById('loader-counter');
+    const loaderFill = document.getElementById('loader-bar-fill');
+    const loaderBrand = document.getElementById('loader-brand');
+    const loaderFinalText = document.getElementById('loader-final-text');
+
+    // Fade in brand label
+    gsap.to(loaderBrand, { opacity: 1, duration: 0.4, delay: 0.2 });
+
+    // Count 00 → 100
+    const counterObj = { val: 0 };
+    gsap.to(counterObj, {
+      val: 100,
+      duration: 2.2,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        loaderCounter.textContent = Math.round(counterObj.val).toString().padStart(2, '0');
+      }
+    });
+
+    // Progress bar
+    gsap.to(loaderFill, { width: '100%', duration: 2.2, ease: 'power2.inOut' });
+
+    // Exit sequence at 2200ms
+    setTimeout(() => {
+      // Step 2: Counter fades up
+      gsap.to(loaderCounter, { y: -30, opacity: 0, duration: 0.4, ease: 'power2.in' });
+      gsap.to(document.getElementById('loader-bar-track'), { opacity: 0, duration: 0.3 });
+
+      // Step 3: "FIRSTHOUR" slams in
+      setTimeout(() => {
+        loaderFinalText.style.opacity = '0';
+        gsap.to(loaderFinalText, { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out', from: { y: 60, opacity: 0 } });
+        gsap.fromTo(loaderFinalText, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out' });
+      }, 300);
+
+      // Step 4: Panel splits
+      setTimeout(() => {
+        gsap.to(loaderBrand, { opacity: 0, duration: 0.2 });
+        gsap.to(loaderFinalText, { opacity: 0, duration: 0.2 });
+        gsap.to(document.getElementById('loader-tagline'), { opacity: 0, duration: 0.2 });
+
+        gsap.to(loaderTop, {
+          y: '-100%',
+          duration: 0.8,
+          ease: 'power4.inOut'
+        });
+        gsap.to(loaderBottom, {
+          y: '100%',
+          duration: 0.8,
+          ease: 'power4.inOut'
+        });
+      }, 700);
+
+      // Step 5: Loader hidden, scroll unlocked
+      setTimeout(() => {
+        loaderEl.style.display = 'none';
+        document.body.style.overflow = 'unset';
+
+        // Initialize Lenis AFTER loader exits
+        initLenis();
+
+        // Hero text animation
+        setTimeout(() => {
+          triggerHeroAnimations();
+        }, 50);
+
+      }, 1500);
+
+    }, 2200);
+
+    // ================================================================
+    // 3. LENIS SMOOTH SCROLL
+    // ================================================================
+    let lenis;
+
+    function initLenis() {
+      const isMobile = window.innerWidth < 768;
+
+      lenis = new Lenis({
+        duration: 1.4,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 0.8,
+        touchMultiplier: isMobile ? 2.0 : 1.5,
+        infinite: false,
+      });
+
+      // Connect Lenis to GSAP ticker
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+
+      // Connect to ScrollTrigger
+      lenis.on('scroll', ScrollTrigger.update);
+
+      // ScrollTrigger proxy
+      ScrollTrigger.scrollerProxy(document.body, {
+        scrollTop(value) {
+          if (arguments.length) {
+            lenis.scrollTo(value, { immediate: true });
+          }
+          return lenis.animatedScroll;
+        },
+        getBoundingClientRect() {
+          return { top: 0, left: 0, width: window.innerWidth, height: window.innerHeight };
+        }
+      });
+
+      // After Lenis is ready, init all GSAP animations
+      initGSAP();
+
+      // Refresh after fonts
+      document.fonts.ready.then(() => ScrollTrigger.refresh());
+    }
+
+    // ================================================================
+    // 4. HERO ANIMATIONS (triggers after loader)
+    // ================================================================
+    function triggerHeroAnimations() {
+      const tl = gsap.timeline();
+
+      // Chapter marker
+      tl.to('#hero .hero-chapter', {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        ease: 'power3.out'
+      }, 0);
+
+      gsap.set('#hero .hero-chapter', { opacity: 0, x: -20 });
+
+      // Hero chars rise up
+      tl.to(allHeroChars, {
+        y: '0%',
+        duration: 0.8,
+        ease: 'power4.out',
+        stagger: 0.025
+      }, 0.0);
+
+      // Subheadline
+      tl.to('#hero-sub', {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power3.out'
+      }, 0.6);
+
+      gsap.set('#hero-sub', { y: 24 });
+
+      // CTA row
+      tl.to('#hero-cta', {
+        y: 0,
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power3.out'
+      }, 0.9);
+
+      gsap.set('#hero-cta', { y: 24 });
+
+      // Nav items
+      const navItems = document.querySelectorAll('.nav-links li, .nav-badge');
+      gsap.set(navItems, { y: -12, opacity: 0 });
+      gsap.to(navItems, {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power3.out',
+        stagger: 0.06,
+        delay: 0.2
+      });
+
+      // Family count up
+      const familyCountEl = document.getElementById('family-count');
+      const familyObj = { val: 0 };
+      gsap.to(familyObj, {
+        val: 12847,
+        duration: 2,
+        ease: 'power2.out',
+        delay: 0.5,
+        onUpdate() {
+          familyCountEl.textContent = Math.round(familyObj.val).toLocaleString();
+        }
+      });
+
+      // Bounce arrow
+      gsap.to('#bounce-arrow', {
+        y: 4,
+        duration: 0.6,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true
+      });
+
+      // Hero ticker
+      initTicker('#ticker-inner', 30);
+    }
+
+    // ================================================================
+    // 5. TICKER ANIMATION
+    // ================================================================
+    function initTicker(selector, duration) {
+      const el = document.querySelector(selector);
+      if (!el) return;
+      const totalWidth = el.scrollWidth / 2;
+      gsap.to(el, {
+        x: -totalWidth,
+        duration: duration,
+        ease: 'none',
+        repeat: -1
+      });
+    }
+
+    // ================================================================
+    // 6. GSAP + SCROLLTRIGGER ANIMATIONS
+    // ================================================================
+    function initGSAP() {
+      gsap.registerPlugin(ScrollTrigger);
+
+      ScrollTrigger.defaults({
+        toggleActions: 'play none none reverse',
+        markers: false
+      });
+
+      // --- NAV SCROLL ---
+      ScrollTrigger.create({
+        start: 'top+=100 top',
+        onEnter: () => document.getElementById('main-nav').classList.add('scrolled'),
+        onLeaveBack: () => document.getElementById('main-nav').classList.remove('scrolled')
+      });
+
+      // --- SECTION 2: STATEMENT WORD HIGHLIGHT ---
+      const statementWords = document.getElementById('statement-text');
+      if (statementWords) {
+        // Split words
+        const text = statementWords.innerHTML;
+        // Replace content with word spans
+        const wordSpans = text.replace(/(<em>|<\/em>)/g, function(m) { return m; })
+          .split(/(\s+)/).filter(Boolean);
+
+        let newHTML = '';
+        wordSpans.forEach(part => {
+          if (part.match(/^\s+$/)) {
+            newHTML += ' ';
+          } else {
+            newHTML += `<span class="word" style="color:rgba(232,228,220,0.15)">${part}</span> `;
+          }
+        });
+        statementWords.innerHTML = newHTML;
+
+        const words = statementWords.querySelectorAll('.word');
+
+        const stmtTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#statement',
+            start: 'top top',
+            end: '+=200%',
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1
+          }
+        });
+
+        words.forEach((word, i) => {
+          const progress = i / words.length;
+          stmtTl.to(word, {
+            color: 'rgba(232,228,220,1.0)',
+            duration: 0.1
+          }, progress * 0.8);
+        });
+
+        // Attribution fades in near end
+        stmtTl.to('#statement-attr', { opacity: 1, duration: 0.2 }, 0.7);
+
+        // Vignette tightens
+        stmtTl.to('#statement-vignette', { opacity: 0.4, duration: 0.5 }, 0);
+      }
+
+      // --- SECTION 3: HOW IT WORKS ---
+      // Section heading clip reveal
+      ScrollTrigger.create({
+        trigger: '#how-it-works',
+        start: 'top 75%',
+        onEnter: () => {
+          gsap.to('#hiw-line1', { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power4.out' });
+          gsap.to('#hiw-line2', { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power4.out', delay: 0.15 });
+        }
+      });
+
+      // Steps alternate slide in
+      const steps = [
+        { el: '#step-1', x: -60 },
+        { el: '#step-2', x: 60 },
+        { el: '#step-3', x: -60 }
+      ];
+
+      steps.forEach(({ el, x }) => {
+        gsap.set(el, { x, opacity: 0 });
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top 80%',
+          onEnter: () => {
+            gsap.to(el, { x: 0, opacity: 1, duration: 0.8, ease: 'power3.out' });
+          }
+        });
+      });
+
+      // --- SECTION 4: DISASTERS HEADING ---
+      ScrollTrigger.create({
+        trigger: '#disasters-header',
+        start: 'top 75%',
+        onEnter: () => {
+          gsap.to('#disasters-line1', { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power4.out' });
+          gsap.to('#disasters-line2', { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power4.out', delay: 0.15 });
+        }
+      });
+
+      // Explore arrow bounce
+      gsap.to('#explore-arrow', {
+        x: 8,
+        duration: 0.6,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true
+      });
+
+      // Horizontal scroll section (desktop only)
+      const isMobile = window.innerWidth < 768;
+      if (!isMobile) {
+        const strip = document.getElementById('disaster-strip');
+        const cards = document.querySelectorAll('.disaster-card');
+        const numCards = cards.length;
+        const totalScroll = (numCards - 1) * 100;
+
+        ScrollTrigger.create({
+          trigger: '#disasters-pin',
+          start: 'top top',
+          end: `+=${totalScroll}vw`,
+          pin: true,
+          anticipatePin: 1,
+          scrub: 1,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            const x = -(progress * totalScroll);
+            gsap.set(strip, { x: `${x}vw` });
+
+            // Animate each card's name as it enters
+            cards.forEach((card, i) => {
+              const cardStart = i / numCards;
+              const cardProgress = (progress - cardStart) * numCards;
+              const name = card.querySelector('.card-name');
+              const pills = card.querySelector('.card-pills');
+
+              if (cardProgress > 0 && cardProgress < 1.5) {
+                const p = Math.min(cardProgress / 0.4, 1);
+                gsap.set(name, { y: 60 * (1 - p), opacity: p });
+                if (cardProgress > 0.3) {
+                  const p2 = Math.min((cardProgress - 0.3) / 0.4, 1);
+                  gsap.set(pills, { y: 20 * (1 - p2), opacity: p2 });
+                }
+              } else if (i === 0 && progress < 0.05) {
+                gsap.set(name, { y: 0, opacity: 1 });
+                gsap.set(pills, { y: 0, opacity: 1 });
+              }
+            });
+          }
+        });
+
+        // Initial card visible
+        const firstCard = cards[0];
+        if (firstCard) {
+          gsap.set(firstCard.querySelector('.card-name'), { y: 0, opacity: 1 });
+          gsap.set(firstCard.querySelector('.card-pills'), { y: 0, opacity: 1 });
+        }
+      }
+
+      // --- SECTION 5: STATS COUNTERS ---
+      const statData = [
+        { id: 'count-1', target: 87, suffix: '%' },
+        { id: 'count-2', target: 5, suffix: ' min' },
+        { id: 'count-3', target: 12400, suffix: '+' }
+      ];
+
+      let statsAnimated = false;
+      ScrollTrigger.create({
+        trigger: '#stats',
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          if (statsAnimated) return;
+          statsAnimated = true;
+
+          // Stat blocks entry animation
+          gsap.to('.stat-block', {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            stagger: 0.15
+          });
+          gsap.set('.stat-block', { y: 40 });
+
+          statData.forEach(({ id, target, suffix }) => {
+            const el = document.getElementById(id);
+            const obj = { val: 0 };
+            gsap.to(obj, {
+              val: target,
+              duration: 2.5,
+              ease: 'power2.out',
+              onUpdate() {
+                const rounded = Math.round(obj.val);
+                el.textContent = rounded.toLocaleString() + suffix;
+              }
+            });
+          });
+        }
+      });
+
+      // --- SECTION 6: TESTIMONIALS ---
+      ScrollTrigger.create({
+        trigger: '#testimonials',
+        start: 'top 75%',
+        onEnter: () => {
+          gsap.to('#test-line1', { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power4.out' });
+          gsap.to('#test-line2', { clipPath: 'inset(0 0% 0 0)', duration: 0.8, ease: 'power4.out', delay: 0.15 });
+        }
+      });
+
+      const tcards = [
+        { el: '#tcard-1', x: -60 },
+        { el: '#tcard-2', x: 60 },
+        { el: '#tcard-3', x: -60 }
+      ];
+
+      tcards.forEach(({ el, x }) => {
+        gsap.set(el, { x, opacity: 0 });
+        ScrollTrigger.create({
+          trigger: el,
+          start: 'top 80%',
+          onEnter: () => {
+            gsap.to(el, { x: 0, opacity: 1, duration: 0.8, ease: 'power3.out' });
+          }
+        });
+      });
+
+      // --- SECTION 7: FINAL CTA ---
+      const ctaTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#final-cta',
+          start: 'top 80%',
+          once: true
+        }
+      });
+
+      ctaTl
+        .to('#cta-label', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0)
+        .to('#cta-line1', { clipPath: 'inset(0 0 0% 0)', duration: 0.7, ease: 'power4.out' }, 0.2)
+        .to('#cta-line2', { clipPath: 'inset(0 0 0% 0)', duration: 0.7, ease: 'power4.out' }, 0.4)
+        .to('#cta-line3', { clipPath: 'inset(0 0 0% 0)', duration: 0.7, ease: 'power4.out' }, 0.6)
+        .to('#cta-sub', { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.8);
+
+      gsap.set('#cta-sub', { y: 24 });
+
+      // CTA Ticker
+      initTicker('#cta-ticker-inner', 30);
+
+    }// end initGSAP
+
+    // ================================================================
+    // 7. CURSOR SYSTEM
+    // ================================================================
+    const isTouch = window.matchMedia('(hover: none)').matches;
+    const isFine = window.matchMedia('(pointer: fine)').matches;
+
+    if (isFine && !isTouch) {
+      const ring = document.getElementById('cursor-ring');
+      const dot = document.getElementById('cursor-dot');
+      const label = document.getElementById('cursor-label');
+
+      // Quick setters for ring position (lagged)
+      const ringXTo = gsap.quickTo(ring, 'x', { duration: 0.5, ease: 'power3.out' });
+      const ringYTo = gsap.quickTo(ring, 'y', { duration: 0.5, ease: 'power3.out' });
+      const labelXTo = gsap.quickTo(label, 'x', { duration: 0.5, ease: 'power3.out' });
+      const labelYTo = gsap.quickTo(label, 'y', { duration: 0.5, ease: 'power3.out' });
+
+      let mouseX = 0, mouseY = 0;
+
+      document.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+
+        // Dot follows immediately
+        dot.style.left = mouseX + 'px';
+        dot.style.top = mouseY + 'px';
+        label.style.left = mouseX + 'px';
+        label.style.top = mouseY + 'px';
+
+        // Ring lags
+        ringXTo(mouseX);
+        ringYTo(mouseY);
+      });
+
+      // Hover states
+      const allInteractive = document.querySelectorAll('a, button');
+      const ctaButtons = document.querySelectorAll('#hero-cta-btn, #final-cta-btn');
+      const dragSection = document.getElementById('disasters-pin');
+      const testimonialCards = document.querySelectorAll('.testimonial-card');
+
+      allInteractive.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.classList.add('hovering');
+          dot.classList.add('hide');
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.classList.remove('hovering', 'hovering-cta', 'hovering-drag', 'hovering-read');
+          dot.classList.remove('hide');
+          label.style.opacity = '0';
+          label.textContent = '';
+        });
+      });
+
+      ctaButtons.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.classList.remove('hovering');
+          ring.classList.add('hovering-cta');
+          label.textContent = 'GO →';
+          label.style.opacity = '1';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.classList.remove('hovering-cta');
+          label.style.opacity = '0';
+        });
+      });
+
+      if (dragSection) {
+        dragSection.addEventListener('mouseenter', () => {
+          ring.classList.add('hovering-drag');
+          label.textContent = 'DRAG';
+          label.style.opacity = '1';
+        });
+        dragSection.addEventListener('mouseleave', () => {
+          ring.classList.remove('hovering-drag');
+          label.style.opacity = '0';
+        });
+      }
+
+      testimonialCards.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          ring.classList.add('hovering-read');
+          label.textContent = 'READ';
+          label.style.opacity = '1';
+        });
+        el.addEventListener('mouseleave', () => {
+          ring.classList.remove('hovering-read');
+          label.style.opacity = '0';
+        });
+      });
+    }
+
+    // ================================================================
+    // 8. MAGNETIC BUTTON EFFECT
+    // ================================================================
+    const isTouch2 = window.matchMedia('(hover: none)').matches;
+    if (!isTouch2) {
+      document.querySelectorAll('.magnetic-btn').forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+          const rect = btn.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
+          const dx = e.clientX - cx;
+          const dy = e.clientY - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            const magnetX = dx * 0.25;
+            const magnetY = dy * 0.25;
+            gsap.to(btn, { x: magnetX, y: magnetY, duration: 0.4, ease: 'power3.out' });
+          }
+        });
+
+        btn.addEventListener('mouseleave', () => {
+          gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+        });
+      });
+    }
+
+    // ================================================================
+    // 9. MOBILE MENU
+    // ================================================================
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileClose = document.getElementById('mobile-close');
+    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+    function openMobileMenu() {
+      mobileMenu.classList.add('open');
+      hamburger.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('active');
+      document.body.style.overflow = 'unset';
+    }
+
+    hamburger && hamburger.addEventListener('click', openMobileMenu);
+    mobileClose && mobileClose.addEventListener('click', closeMobileMenu);
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+
+    // ================================================================
+    // 10. RESIZE HANDLER
+    // ================================================================
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 200);
+    }, { passive: true });
+
+    // ================================================================
+    // INITIAL GSAP SETS (before animations run)
+    // ================================================================
+    // Set initial states for heading clip animations
+    gsap.set('#hiw-line1, #hiw-line2, #disasters-line1, #disasters-line2, #test-line1, #test-line2', {
+      clipPath: 'inset(0 100% 0 0)'
+    });
+
+    gsap.set('#cta-line1, #cta-line2, #cta-line3', {
+      clipPath: 'inset(0 0 100% 0)'
+    });
+
+    gsap.set('.stat-block', { y: 40, opacity: 0 });
+
+  })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #F7F2EB;
+    --bg-secondary: #EAE2D6;
+    --bg-elevated: #FFFFFF;
+    --bg-grey: #EEEEEE;
+    
+    --accent-primary: #8B9A6E;
+    --accent-hover: #758458;
+    --accent-warm: #8B9A6E;
+    --accent-olive: #67754E;
+    --accent-tint: rgba(139, 154, 110, 0.16);
+
+    --text-primary: #1C2216;
+    --text-secondary: #4A5440;
+    --text-muted: #737F69;
+
+    --border: rgba(139, 154, 110, 0.28);
+    --border-hover: rgba(139, 154, 110, 0.55);
+    --border-subtle: rgba(28, 34, 22, 0.08);
+    --glass: rgba(247, 242, 235, 0.85);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    color: var(--text-primary);
+  }
+}
+
+@layer utilities {
+  .text-shadow-glow-accent {
+    text-shadow: 0 0 20px rgba(139, 154, 110, 0.35);
+  }
+}
+
+/* Custom scrollbar matching sage & cream */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 154, 110, 0.35);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
